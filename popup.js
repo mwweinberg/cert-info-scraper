@@ -55,43 +55,116 @@ function execScript(tab) {
 // }
 
 function grabElements() {
-    const element = document.querySelector('.entity-editor__field-group[data-field-api-name="oshwaUid"]');
-    console.log(element);
+    const infoHolder = [];
+    
+    const projectName = document.querySelector('.entity-editor__field-group[data-field-api-name="projectName"]');
+    console.log(projectName);
     // Check if the element was found
-    if (element) {
+    if (projectName) {
         // Access the input element within the selected div
-        const inputElement = element.querySelector('input[data-test-id="cf-ui-text-input"]');
+        const inputElement = projectName.querySelector('input[data-test-id="cf-ui-text-input"]');
         
         // Check if the input element was found
         if (inputElement) {
         // Extract the value
         const value = inputElement.value;
         console.log(value);
+        infoHolder.push(value);
         } else {
         console.log("Input element not found.");
+        infoHolder.push(" ");
+        }
+    } else {
+        console.log("Element not found.");
+    }
+    
+    const oshwaUid = document.querySelector('.entity-editor__field-group[data-field-api-name="oshwaUid"]');
+    console.log(oshwaUid);
+    // Check if the element was found
+    if (oshwaUid) {
+        // Access the input element within the selected div
+        const inputElement = oshwaUid.querySelector('input[data-test-id="cf-ui-text-input"]');
+        
+        // Check if the input element was found
+        if (inputElement) {
+        // Extract the value
+        const value = inputElement.value;
+        console.log(value);
+        infoHolder.push(value);
+        } else {
+        console.log("Input element not found.");
+        infoHolder.push(" ");
         }
     } else {
         console.log("Element not found.");
     }
 
-    const element1 = document.querySelector('.entity-editor__field-group[data-field-api-name="privateContact"]');
-    console.log(element1);
+    const privateContact = document.querySelector('.entity-editor__field-group[data-field-api-name="privateContact"]');
+    console.log(privateContact);
     // Check if the element was found
-    if (element1) {
+    if (privateContact) {
         // Access the input element within the selected div
-        const inputElement = element1.querySelector('input[data-test-id="cf-ui-text-input"]');
+        const inputElement = privateContact.querySelector('input[data-test-id="cf-ui-text-input"]');
         
         // Check if the input element was found
         if (inputElement) {
         // Extract the value
         const value = inputElement.value;
         console.log(value);
+        infoHolder.push(value);
         } else {
         console.log("Input element not found.");
+        infoHolder.push(" ");
         }
     } else {
         console.log("Element not found.");
     }
+
+    const projectDescription = document.querySelector('.entity-editor__field-group[data-field-api-name="projectDescription"]');
+    console.log(projectDescription);
+    // Check if the element was found
+    if (projectDescription) {
+        // Access the input element within the selected div
+        const inputElement = projectDescription.querySelector('input[data-test-id="cf-ui-text-input"]');
+        
+        // Check if the input element was found
+        if (inputElement) {
+        // Extract the value
+        const value = inputElement.value;
+        console.log(value);
+        infoHolder.push(value);
+        } else {
+        console.log("Project Description element not found.");
+        infoHolder.push(" ");
+        }
+    } else {
+        console.log("Element not found.");
+    }
+
+    const documentationUrl = document.querySelector('.entity-editor__field-group[data-field-api-name="documentationUrl"]');
+    console.log(documentationUrl);
+    // Check if the element was found
+    if (documentationUrl) {
+        // Access the input element within the selected div
+        const inputElement = documentationUrl.querySelector('input[data-test-id="cf-ui-text-input"]');
+        
+        // Check if the input element was found
+        if (inputElement) {
+        // Extract the value
+        const value = inputElement.value;
+        console.log(value);
+        infoHolder.push(value);
+        } else {
+        console.log("Documentation Url not found.");
+        infoHolder.push(" ");
+        }
+    } else {
+        console.log("Element not found.");
+    }
+
+
+
+    console.log(infoHolder);
 
 }
 
