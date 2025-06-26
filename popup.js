@@ -1,199 +1,90 @@
 //from https://dev.to/andreygermanov/create-a-google-chrome-extension-part-1-image-grabber-1foa
 
+let infoHolder = [];
 const grabBtn = document.getElementById("grabBtn");
-grabBtn.addEventListener("click",() => {
-    //pull the active tabs
-    chrome.tabs.query({active: true}, (tabs) => {
-        //set tab equal to the first tab in the array
-        var tab = tabs[0];
-        //if it exists
+
+grabBtn.addEventListener("click", () => {
+    // Pull the active tabs
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tab = tabs[0];
         if (tab) {
             execScript(tab);
-            //this was added to avoid an error - see https://groups.google.com/a/chromium.org/g/chromium-extensions/c/6TtlYbWWN4Q
+            // Handle potential runtime errors
             chrome.runtime.lastError;
-        //if not
         } else {
-            alert("There are no active tabs")
+            alert("There are no active tabs.");
         }
-    })
-})
+    });
+});
 
 function execScript(tab) {
-    //execute a fnction on a page of the current browser tab and process the result
+    // Execute a function on a page of the current browser tab and process the result
     chrome.scripting.executeScript(
         {
-            target:{tabId: tab.id, allFrames: true},
-            func:grabImages,
-            func:grabElements,
-            //func:grabElementsHelper(oshwaUid)
+            target: { tabId: tab.id, allFrames: true },
+            func: grabElements,
         },
-        onResult
-    )
+        (results) => {
+            if (chrome.runtime.lastError) {
+                console.error(chrome.runtime.lastError.message);
+            } else {
+                processResults(results);
+            }
+        }
+    );
 }
-
-// function grabElementsHelper(field) {
-//     let targetField = '.entity-editor__field-group[data-field-api-name="' + field + '"]'
-//     const element = document.querySelector(targetField);
-//     console.log(element);
-//     // Check if the element was found
-//     if (element) {
-//         // Access the input element within the selected div
-//         const inputElement = element.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-//         // Check if the input element was found
-//         if (inputElement) {
-//         // Extract the value
-//         const value = inputElement.value;
-//         console.log(value);
-//         } else {
-//         console.log("Input element not found.");
-//         }
-//     } else {
-//         console.log("Element not found.");
-//     }
-
-// }
 
 function grabElements() {
     const infoHolder = [];
-    
-    const projectName = document.querySelector('.entity-editor__field-group[data-field-api-name="projectName"]');
-    console.log(projectName);
-    // Check if the element was found
-    if (projectName) {
-        // Access the input element within the selected div
-        const inputElement = projectName.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-        // Check if the input element was found
-        if (inputElement) {
-        // Extract the value
-        const value = inputElement.value;
-        console.log(value);
-        infoHolder.push(value);
-        } else {
-        console.log("Input element not found.");
-        infoHolder.push(" ");
+
+    function extractValue(selector) {
+        const fieldGroup = document.querySelector(selector);
+        if (fieldGroup) {
+            const inputElement = fieldGroup.querySelector('input[data-test-id="cf-ui-text-input"]');
+            return inputElement ? inputElement.value : " ";
         }
-    } else {
-        console.log("Element not found.");
-    }
-    
-    const oshwaUid = document.querySelector('.entity-editor__field-group[data-field-api-name="oshwaUid"]');
-    console.log(oshwaUid);
-    // Check if the element was found
-    if (oshwaUid) {
-        // Access the input element within the selected div
-        const inputElement = oshwaUid.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-        // Check if the input element was found
-        if (inputElement) {
-        // Extract the value
-        const value = inputElement.value;
-        console.log(value);
-        infoHolder.push(value);
-        } else {
-        console.log("Input element not found.");
-        infoHolder.push(" ");
-        }
-    } else {
-        console.log("Element not found.");
+        return " ";
     }
 
-    const privateContact = document.querySelector('.entity-editor__field-group[data-field-api-name="privateContact"]');
-    console.log(privateContact);
-    // Check if the element was found
-    if (privateContact) {
-        // Access the input element within the selected div
-        const inputElement = privateContact.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-        // Check if the input element was found
-        if (inputElement) {
-        // Extract the value
-        const value = inputElement.value;
-        console.log(value);
-        infoHolder.push(value);
-        } else {
-        console.log("Input element not found.");
-        infoHolder.push(" ");
+    function extractCodeMirrorContent(selector) {
+        const fieldGroup = document.querySelector(selector);
+        if (fieldGroup) {
+            const codeMirrorElement = fieldGroup.querySelector('.CodeMirror .CodeMirror-code');
+            if (codeMirrorElement) {
+                return Array.from(codeMirrorElement.querySelectorAll('.CodeMirror-line'))
+                    .map(line => line.textContent)
+                    .join('\n'); // Join lines to form full description
+            }
         }
-    } else {
-        console.log("Element not found.");
+        return " ";
     }
 
-    const projectDescription = document.querySelector('.entity-editor__field-group[data-field-api-name="projectDescription"]');
-    console.log(projectDescription);
-    // Check if the element was found
-    if (projectDescription) {
-        // Access the input element within the selected div
-        const inputElement = projectDescription.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-        // Check if the input element was found
-        if (inputElement) {
-        // Extract the value
-        const value = inputElement.value;
-        console.log(value);
-        infoHolder.push(value);
-        } else {
-        console.log("Project Description element not found.");
-        infoHolder.push(" ");
-        }
-    } else {
-        console.log("Element not found.");
-    }
+    infoHolder.push(extractValue('.entity-editor__field-group[data-field-api-name="projectName"]'));
+    infoHolder.push(extractValue('.entity-editor__field-group[data-field-api-name="oshwaUid"]'));
+    infoHolder.push(extractValue('.entity-editor__field-group[data-field-api-name="privateContact"]'));
+    infoHolder.push(extractCodeMirrorContent('.entity-editor__field-group[data-field-api-name="projectDescription"]'));
+    // infoHolder.push(extractValue('.entity-editor__field-group[data-field-api-name="documentationUrl"]'));
 
-    const documentationUrl = document.querySelector('.entity-editor__field-group[data-field-api-name="documentationUrl"]');
-    console.log(documentationUrl);
-    // Check if the element was found
-    if (documentationUrl) {
-        // Access the input element within the selected div
-        const inputElement = documentationUrl.querySelector('input[data-test-id="cf-ui-text-input"]');
-        
-        // Check if the input element was found
-        if (inputElement) {
-        // Extract the value
-        const value = inputElement.value;
-        console.log(value);
-        infoHolder.push(value);
-        } else {
-        console.log("Documentation Url not found.");
-        infoHolder.push(" ");
-        }
-    } else {
-        console.log("Element not found.");
-    }
-
-
-
-    console.log(infoHolder);
-
+    return infoHolder;
 }
 
-//todo: create a function "grabelements" by pulling the first part of this out into a new function
-// then update teh execScript function to execute it too
-function grabImages() {
-    
-  
+function processResults(results) {
+    if (results && results[0] && results[0].result) {
+        const infoHolder = results[0].result;
 
-    //pulls a list of all img
-    const images = document.querySelectorAll("img");
-    //converts the list of images into an array
-    //then returns the urls (image.src) of the img in the array
-    return Array.from(images).map(image=>image.src);
-  
-  
-}
+        // Join array elements with tabs for TSV format
+        const tsvData = infoHolder.join("\t");
 
-function onResult(frames) {
-    //if script fails on the remote end and cannot return results
-    if (!frames || !frames.length) {
-        alert("Could not retrieve images from specified page");
-        return;
+        // Copy to clipboard
+        navigator.clipboard.writeText(tsvData)
+            .then(() => {
+                alert("Data copied to clipboard. You can now paste it into a spreadsheet.");
+            })
+            .catch(err => {
+                console.error("Error copying to clipboard:", err);
+                alert("Failed to copy data to clipboard.");
+            });
+    } else {
+        console.log("No data retrieved from the page.");
     }
-    //combine arrays of the image URLs from each frame into a single array
-    const imageUrls = frames.map(frame=>frame.result).reduce((r1,r2)=>r1.concat(r2));
-    //copy to the clipboard a string of the image URLs, delimited by carriage return
-    window.navigator.clipboard.writeText(imageUrls.join("\n")).then(()=>{
-        //close the extensoin popup after data is copied to clipboard
-        window.close();
-    });
 }

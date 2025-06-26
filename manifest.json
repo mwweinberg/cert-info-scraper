@@ -1,6 +1,6 @@
 {
-    "name": "Image Grabber",
-    "description": "Extract all images from current web page",
+    "name": "OSHWA Cert Grabber",
+    "description": "Grab relevant info to cert",
     "version": "1.0",
     "manifest_version": 3,
     "icons": {
