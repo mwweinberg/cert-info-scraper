@@ -78,7 +78,9 @@ function processResults(results) {
         // Copy to clipboard
         navigator.clipboard.writeText(tsvData)
             .then(() => {
-                alert("Data copied to clipboard. You can now paste it into a spreadsheet.");
+                // alert("Data copied to clipboard. You can now paste it into a spreadsheet.");
+                console.log("Data copied to clipboard. You can now paste it into a spreadsheet.")
+                window.close();
             })
             .catch(err => {
                 console.error("Error copying to clipboard:", err);
